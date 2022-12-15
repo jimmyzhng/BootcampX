@@ -9,21 +9,23 @@ const pool = new Pool({
 
 pool.connect();
 
+// Cohort name as input
 const cohort = process.argv[2];
-const limit = process.argv[3];
 
 // query is a function that accepts a SQL query as a JavaScript string
 // returns a promise that contains our result when successful
 pool.query(`
-SELECT students.id as student_id, students.name as name, cohorts.name as cohort_name
-FROM students
-JOIN cohorts ON cohorts.id = students.cohort_id
-WHERE cohorts.name LIKE '%${cohort}%'
-LIMIT ${limit};
+SELECT DISTINCT teachers.name as teacher, cohorts.name as cohort
+FROM teachers
+JOIN assistance_requests ON teacher_id = teachers.id
+JOIN students ON student_id = students.id
+JOIN cohorts ON cohort_id = cohorts.id
+WHERE cohorts.name = '${process.argv[2]}'
+ORDER BY teacher;
 `)
   .then(res => {
-    res.rows.forEach(users => {
-      console.log(`${users.name} has an id of ${users.student_id} and was in the ${users.cohort_name} cohort`
+    res.rows.forEach(teachers => {
+      console.log(`${cohort}: ${teachers.teacher}`
       );
     }
 
